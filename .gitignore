@@ -1,0 +1,8 @@
+node_modules/
+electron/
+SimpleHttpClient-win32-x64/
+directory.wxs
+*.wixobj
+*.wixpdb
+*.msi
+package-lock.json

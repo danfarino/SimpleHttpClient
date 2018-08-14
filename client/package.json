@@ -1,0 +1,32 @@
+{
+  "name": "simple-http-client-react",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dexie": "^2.0.4",
+    "electron": "^2.0.7",
+    "immer": "^1.5.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-jss": "^8.6.1",
+    "react-redux": "^5.0.7",
+    "react-scripts": "1.1.4",
+    "redux": "^4.0.0",
+    "redux-devtools-extension": "^2.13.5",
+    "smalltalk": "^3.1.1"
+  },
+  "devDependencies": {
+    "electron-packager": "^12.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "homepage": ".",
+  "prettier": {
+    "printWidth": 100
+  }
+}
