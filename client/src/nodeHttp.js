@@ -77,7 +77,7 @@ export default function httpRequest(requestInfo) {
             responseInfo.body += chunk; // TODO: this can't be correct for non-standard encodings. fix.
           });
           httpResponse.on("end", () => {
-            resolve({ success: true, data: responseInfo });
+            resolve(responseInfo);
           });
         }
       );
@@ -106,7 +106,7 @@ export default function httpRequest(requestInfo) {
       });
 
       clientRequest.on("error", e => {
-        reject({ success: false, data: e.message });
+        reject(e);
       });
 
       if (body) {
@@ -119,7 +119,7 @@ export default function httpRequest(requestInfo) {
 
       clientRequest.end();
     } catch (e) {
-      reject({ success: false, data: String(e.message || e) });
+      reject(e);
     }
   });
 }

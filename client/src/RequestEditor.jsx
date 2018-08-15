@@ -47,7 +47,7 @@ const styles = theme => ({
     marginTop: "0.3em",
     marginBottom: "0px !important",
     display: "grid",
-    gridTemplateColumns: "4fr 13fr auto",
+    gridTemplateColumns: "6fr 13fr auto",
     alignItems: "end",
     "& input": {
       minWidth: 0,
@@ -82,9 +82,9 @@ class RequestEditor extends React.Component {
     // make sure the directory is set
     if (!this.props.directory) {
       await alert(
-        "Cannot save: configuration needed",
-        "Please configure the directory where the requests will be saved\n" +
-          'by clicking the button in the "Saved requests" section.'
+        "Cannot save yet: configuration needed",
+        "Please choose the directory where requests will be saved by\n" +
+          'clicking the "Choose" button in the "Saved requests" section.'
       );
       return;
     }
@@ -92,7 +92,7 @@ class RequestEditor extends React.Component {
     const request = this.props.currentRequest;
 
     const defaultName = request.name || `${request.method} ${request.url}`;
-    const name = await prompt("Enter a name for this request:", "", defaultName);
+    const name = await prompt("Enter a name for this saved request:", "", defaultName);
     if (name === null) {
       return;
     }
@@ -218,7 +218,8 @@ class RequestEditor extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    currentRequest: state.currentRequest
+    currentRequest: state.currentRequest,
+    directory: state.directory
   };
 }
 

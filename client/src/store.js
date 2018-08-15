@@ -7,7 +7,8 @@ const initialState = {
   currentResponse: null,
   inProgress: false,
   prettyPrintJsonBody: true,
-  savedRequests: []
+  savedRequests: [],
+  directory: null
 };
 
 const immerMiddleware = store => next => action => {

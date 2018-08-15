@@ -59,7 +59,7 @@ const styles = theme => ({
     boxSizing: "border-box",
 
     display: "grid",
-    gridTemplateColumns: "1fr 2fr",
+    gridTemplateColumns: "89fr 144fr",
     gridTemplateRows: "auto 1fr",
     gridGap: theme.cardSpacing,
     "& > *": {

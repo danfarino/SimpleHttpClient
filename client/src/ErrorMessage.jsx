@@ -12,7 +12,7 @@ class ErrorMessage extends React.Component {
   render() {
     const { error, classes } = this.props;
     if (error) {
-      return <div className={classes.root}>{error}</div>;
+      return <div className={classes.root}>ERROR: {error}</div>;
     } else {
       return null;
     }

@@ -46,7 +46,7 @@ export async function executeRequest() {
   try {
     response = await nodeHttp(request);
   } catch (e) {
-    error = e;
+    error = String(e.message || e);
   }
 
   if (thisRequestInfo !== currentRequestInfo) {
@@ -55,14 +55,14 @@ export async function executeRequest() {
 
   cancelRequest();
 
-  if (response && response.success) {
+  if (response) {
     store.dispatch(draft => {
-      draft.currentResponse = response.data;
+      draft.currentResponse = response;
       draft.inProgress = false;
     });
   } else {
     store.dispatch(draft => {
-      draft.error = error ? String(error) : response.data;
+      draft.error = error;
       draft.inProgress = false;
     });
   }

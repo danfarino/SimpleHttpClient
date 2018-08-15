@@ -3,11 +3,17 @@ import { readdir, readFile, writeFile, unlink, rename, access } from "./native";
 import path from "path";
 
 export function setDirectory(directory) {
-  window.localStorage.directory = directory;
+  if (directory !== null) {
+    window.localStorage.directory = directory;
+  }
+
   store.dispatch(draft => {
     draft.directory = directory;
   });
-  loadSavedRequestsIntoStore();
+
+  if (directory) {
+    loadSavedRequestsIntoStore();
+  }
 }
 
 function pathnameForRequest(requestName) {
@@ -104,4 +110,4 @@ export async function renameRequest(request, newName) {
 }
 
 // Set directory on startup:
-setDirectory(window.localStorage.directory || "c:\\");
+setDirectory(window.localStorage.directory || null);

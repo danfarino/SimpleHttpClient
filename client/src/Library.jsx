@@ -5,6 +5,8 @@ import { deleteRequest, renameRequest, setDirectory } from "./libraryStorage";
 import { executeRequest } from "./executeRequest";
 import { prompt, confirm } from "./prompts";
 
+const { dialog, getCurrentWindow } = window.require("electron").remote;
+
 const styles = theme => ({
   root: {
     overflow: "auto",
@@ -16,20 +18,8 @@ const styles = theme => ({
       alignItems: "center"
     },
     "& > main": {
-      overflow: "initial !important"
-    }
-  },
-  directoryChooser: {
-    cursor: "pointer",
-    font: theme.inputFont,
-    outline: "1px solid #ccc",
-    outlineOffset: "0.2em",
-    "& input": {
-      display: "none"
-    },
-    "&:hover": {
-      color: "#007acc",
-      textDecoration: "underline"
+      overflow: "initial !important",
+      paddingTop: "0.2em !important"
     }
   },
   request: {
@@ -40,8 +30,8 @@ const styles = theme => ({
     gridTemplateColumns: "1fr auto",
     alignItems: "center",
     cursor: "pointer",
-    "&:first-child": {
-      borderTop: "1px solid " + theme.libraryDividerColor
+    "&:last-child": {
+      borderBottom: "0px"
     }
   },
   buttons: {
@@ -51,6 +41,21 @@ const styles = theme => ({
   },
   currentlyLoaded: {
     backgroundColor: theme.currentlyLoadedBackgroundColor
+  },
+  directory: {
+    display: "flex",
+    padding: "0.6em",
+    "& > div": {
+      fontSize: "0.7em",
+      flex: 1,
+      border: "1px solid #ccc",
+      padding: "0.3em",
+      marginLeft: "0.2em",
+      color: "#999"
+    }
+  },
+  noDirectory: {
+    color: theme.placeholderColor
   }
 });
 
@@ -69,14 +74,14 @@ class Library extends React.Component {
   };
 
   deleteRequest = async name => {
-    if (await confirm("Are you sure you want to delete this saved request?", name)) {
+    if (await confirm("Permanently delete this saved request?", name)) {
       console.log("deleting", name);
       await deleteRequest(name);
     }
   };
 
   renameRequest = async request => {
-    const newName = await prompt("Rename request", request.name, request.name);
+    const newName = await prompt("Rename saved request", "", request.name);
     if (newName === null || newName === request.name) {
       return;
     }
@@ -92,6 +97,17 @@ class Library extends React.Component {
     }
   };
 
+  chooseDirectory = () => {
+    const options = {
+      title: "Choose the directory for saved requests",
+      properties: ["openDirectory"]
+    };
+    const dirs = dialog.showOpenDialog(getCurrentWindow(), options);
+    if (dirs) {
+      setDirectory(dirs[0]);
+    }
+  };
+
   render() {
     const { classes, savedRequests, currentRequest, directory } = this.props;
     const loadedRequestName = currentRequest ? currentRequest.name : null;
@@ -100,16 +116,15 @@ class Library extends React.Component {
       <div className={`card ${classes.root}`}>
         <header>
           <div>Saved requests</div>
-          <label className={classes.directoryChooser}>
-            {directory}
-            <input
-              type="file"
-              webkitdirectory=""
-              pathname={directory}
-              onChange={e => setDirectory(e.target.files[0].path)}
-            />
-          </label>
         </header>
+        <div className={classes.directory}>
+          <button onClick={this.chooseDirectory}>Choose</button>
+          {directory ? (
+            <div>{directory}</div>
+          ) : (
+            <div className={classes.noDirectory}>no directory selected</div>
+          )}
+        </div>
         <main>
           {savedRequests.map(request => (
             <div
