@@ -12,6 +12,9 @@ const styles = theme => ({
     body: {
       font: theme.bodyFont
     },
+    "::placeholder": {
+      color: theme.placeholderColor
+    },
     ":focus": {
       outline: "#007acc auto 5px"
     },

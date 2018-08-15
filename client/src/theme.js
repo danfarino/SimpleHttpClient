@@ -15,5 +15,6 @@ export default {
   inProgressIndicatorColor: "#888",
   currentlyLoadedBackgroundColor: "#ffffe0",
   libraryDividerColor: "#eee",
-  arrowColor: "#888"
+  arrowColor: "#888",
+  placeholderColor: "#c0c0c0"
 };
