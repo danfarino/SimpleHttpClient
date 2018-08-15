@@ -79,6 +79,16 @@ const styles = theme => ({
 
 class RequestEditor extends React.Component {
   save = async () => {
+    // make sure the directory is set
+    if (!this.props.directory) {
+      await alert(
+        "Cannot save: configuration needed",
+        "Please configure the directory where the requests will be saved\n" +
+          'by clicking the button in the "Saved requests" section.'
+      );
+      return;
+    }
+
     const request = this.props.currentRequest;
 
     const defaultName = request.name || `${request.method} ${request.url}`;

@@ -18,8 +18,14 @@ const styles = theme => ({
     ":focus": {
       outline: "#007acc auto 5px"
     },
-    ".smalltalk > .page": {
-      minWidth: "30em"
+    // this customizes the "prompt", "alert", and "confirm" dialogss
+    ".smalltalk": {
+      backgroundColor: "rgba(0, 0, 0, 0.3)",
+
+      "& > .page": {
+        minWidth: "30em",
+        padding: "0.3em 0.4em"
+      }
     },
     "input, select": {
       fontSize: "inherit"
@@ -61,11 +67,6 @@ const styles = theme => ({
       minHeight: 0
     }
   },
-  // "@media (min-width: 2000px)": {
-  //   root: {
-  //     gridTemplateColumns: "700px 1fr"
-  //   }
-  // },
   urlEditor: {
     gridColumn: "1 / -1"
   },
