@@ -3,7 +3,7 @@ import injectStyles from "react-jss";
 import produce from "immer";
 import { save, doesNameExist } from "./libraryStorage";
 import { connect } from "react-redux";
-import { prompt } from "./prompts";
+import { prompt, alert, confirm } from "./prompts";
 
 const styles = theme => ({
   root: {
@@ -88,12 +88,12 @@ class RequestEditor extends React.Component {
     }
 
     if (!name) {
-      window.alert("ERROR: cannot save. You must specify a name!");
+      await alert("ERROR", "You must specify a name!");
       return;
     }
 
     if (await doesNameExist(name)) {
-      if (!window.confirm("Already exists! Do you want to overwrite the existing:\n" + name)) {
+      if (!(await confirm("Already exists! Do you want to overwrite the existing file?", name))) {
         return;
       }
     }

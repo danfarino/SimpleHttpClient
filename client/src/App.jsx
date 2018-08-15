@@ -18,6 +18,9 @@ const styles = theme => ({
     ":focus": {
       outline: "#007acc auto 5px"
     },
+    ".smalltalk > .page": {
+      minWidth: "30em"
+    },
     "input, select": {
       fontSize: "inherit"
     },
