@@ -4,7 +4,7 @@
 # It must/should work from a freshly-cloned repository.
 
 
-VERSION=1.1.0
+VERSION=1.1.1
 echo "Building MSI installer for version $VERSION"
 echo
 
