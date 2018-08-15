@@ -176,12 +176,14 @@ class RequestEditor extends React.Component {
               <React.Fragment key={i}>
                 <input
                   type="text"
+                  placeholder="name"
                   spellCheck={false}
                   value={header.name}
                   onChange={e => this.setHeaderName(i, e.target.value)}
                 />
                 <input
                   type="text"
+                  placeholder="value"
                   spellCheck={false}
                   value={header.value}
                   onChange={e => this.setHeaderValue(i, e.target.value)}
