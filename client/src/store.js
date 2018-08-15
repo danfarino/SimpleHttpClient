@@ -7,7 +7,6 @@ const initialState = {
   currentResponse: null,
   inProgress: false,
   prettyPrintJsonBody: true,
-  savedRequests: [],
   directory: null
 };
 

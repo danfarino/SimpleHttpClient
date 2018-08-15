@@ -1,6 +1,7 @@
 import store from "./store";
 import { readdir, readFile, writeFile, unlink, rename, access } from "./native";
 import path from "path";
+import * as eventBus from "./eventBus";
 
 export function setDirectory(directory) {
   if (directory !== null) {
@@ -10,10 +11,6 @@ export function setDirectory(directory) {
   store.dispatch(draft => {
     draft.directory = directory;
   });
-
-  if (directory) {
-    loadSavedRequestsIntoStore();
-  }
 }
 
 function pathnameForRequest(requestName) {
@@ -24,37 +21,24 @@ function requestNameFromFilename(filename) {
   return decodeURIComponent(filename.replace(/\.req\.json$/, ""));
 }
 
-export async function loadSavedRequestsIntoStore() {
-  let savedRequests = [];
-  try {
-    const directory = store.getState().directory;
+export async function loadRequest(name) {
+  const pathname = pathnameForRequest(name);
+  const contents = await readFile(pathname);
+  const request = JSON.parse(contents);
+  request.name = name;
+  return request;
+}
 
-    const filenames = await readdir(directory);
-    savedRequests = await Promise.all(
-      filenames.filter(filename => /\.req\.json$/.test(filename)).map(async filename => {
-        const pathname = path.join(directory, filename);
-        console.log("readFile", pathname);
-        const contents = await readFile(pathname);
-        const request = JSON.parse(contents);
-        request.name = requestNameFromFilename(filename);
-        return request;
-      })
-    );
-  } catch (e) {
-    console.error("error loading requests", e);
-  }
+export async function getRequestsInDirectory() {
+  const directory = store.getState().directory;
 
-  console.log("savedRequests", savedRequests);
-
-  store.dispatch(draft => {
-    draft.savedRequests = savedRequests;
-  });
+  const filenames = await readdir(directory);
+  return filenames.filter(filename => /\.req\.json$/.test(filename)).map(requestNameFromFilename);
 }
 
 export async function doesNameExist(name) {
   try {
     const path = pathnameForRequest(name);
-    console.log("doesNameExist", path);
     await access(path);
     return true;
   } catch (e) {
@@ -72,41 +56,25 @@ export async function save(request) {
 
   await writeFile(pathnameForRequest(request.name), JSON.stringify(objectToSave, null, 3));
 
-  // update Redux store
-  store.dispatch(draft => {
-    const index = draft.savedRequests.findIndex(o => o.name === request.name);
-    if (index >= 0) {
-      draft.savedRequests[index] = request;
-    } else {
-      draft.savedRequests.push(request);
-    }
-  });
+  eventBus.dispatch("RELOAD_DIRECTORY");
 }
 
 export async function deleteRequest(name) {
   await unlink(pathnameForRequest(name));
 
-  // update Redux store
-  store.dispatch(draft => {
-    const index = draft.savedRequests.findIndex(o => o.name === name);
-    draft.savedRequests.splice(index, 1);
-  });
+  eventBus.dispatch("RELOAD_DIRECTORY");
 }
 
-export async function renameRequest(request, newName) {
+export async function renameRequest(name, newName) {
   if (await doesNameExist(newName)) {
-    throw Error("cannot rename. already exixts.");
+    throw Error("Cannot rename. A file with that name already exixts.");
   }
 
-  const oldPathname = pathnameForRequest(request.name);
+  const oldPathname = pathnameForRequest(name);
   const newPathname = pathnameForRequest(newName);
   await rename(oldPathname, newPathname);
 
-  // update Redux store
-  store.dispatch(draft => {
-    const existingRequest = draft.savedRequests.find(o => o.name === request.name);
-    existingRequest.name = newName;
-  });
+  eventBus.dispatch("RELOAD_DIRECTORY");
 }
 
 // Set directory on startup:

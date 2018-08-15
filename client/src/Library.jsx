@@ -1,9 +1,16 @@
 import React from "react";
 import injectStyles from "react-jss";
 import { connect } from "react-redux";
-import { deleteRequest, renameRequest, setDirectory } from "./libraryStorage";
+import {
+  deleteRequest,
+  renameRequest,
+  setDirectory,
+  loadRequest,
+  getRequestsInDirectory
+} from "./libraryStorage";
 import { executeRequest } from "./executeRequest";
-import { prompt, confirm } from "./prompts";
+import { prompt, confirm, alert } from "./prompts";
+import * as eventBus from "./eventBus";
 
 const { dialog, getCurrentWindow } = window.require("electron").remote;
 
@@ -61,29 +68,59 @@ const styles = theme => ({
 });
 
 class Library extends React.Component {
-  setCurrentRequest = currentRequest => {
-    sessionStorage.request = JSON.stringify(currentRequest);
+  state = {
+    requestNames: []
+  };
+
+  componentDidMount() {
+    eventBus.subscribe("RELOAD_DIRECTORY", this.refreshDirectory);
+
+    this.refreshDirectory();
+  }
+
+  componentWillUnmount() {
+    eventBus.unsubscribe("RELOAD_DIRECTORY", this.refreshDirectory);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.directory !== this.props.directory) {
+      this.refreshDirectory();
+    }
+  }
+
+  refreshDirectory = async () => {
+    const { directory } = this.props;
+    if (directory) {
+      const requestNames = await getRequestsInDirectory();
+      this.setState({ requestNames });
+    } else {
+      this.setState({ requestNames: [] });
+    }
+  };
+
+  loadRequest = async name => {
+    const request = await loadRequest(name);
+    sessionStorage.request = JSON.stringify(request);
     this.props.dispatch(draft => {
-      draft.currentRequest = currentRequest;
+      draft.currentRequest = request;
       draft.currentResponse = null;
     });
   };
 
-  executeRequest = request => {
-    this.setCurrentRequest(request);
+  loadAndExecuteRequest = async name => {
+    await this.loadRequest(name);
     executeRequest();
   };
 
   deleteRequest = async name => {
     if (await confirm("Permanently delete this saved request?", name)) {
-      console.log("deleting", name);
       await deleteRequest(name);
     }
   };
 
-  renameRequest = async request => {
-    const newName = await prompt("Rename saved request", "", request.name);
-    if (newName === null || newName === request.name) {
+  renameRequest = async name => {
+    const newName = await prompt("Rename saved request", "", name);
+    if (newName === null || newName === name) {
       return;
     }
 
@@ -92,9 +129,9 @@ class Library extends React.Component {
     }
 
     try {
-      await renameRequest(request, newName);
+      await renameRequest(name, newName);
     } catch (e) {
-      await alert("ERROR, cannot rename", String(e));
+      await alert("ERROR", String(e.message || e));
     }
   };
 
@@ -110,7 +147,8 @@ class Library extends React.Component {
   };
 
   render() {
-    const { classes, savedRequests, currentRequest, directory } = this.props;
+    const { classes, currentRequest, directory } = this.props;
+    const { requestNames } = this.state;
     const loadedRequestName = currentRequest ? currentRequest.name : null;
 
     return (
@@ -121,22 +159,23 @@ class Library extends React.Component {
         <div className={classes.directory}>
           <button onClick={this.chooseDirectory}>Choose</button>
           <input type="text" readOnly={true} value={directory || "no directory selected"} />
+          <button onClick={this.refreshDirectory}>↻</button>
         </div>
         <main>
-          {savedRequests.map(request => (
+          {requestNames.map(requestName => (
             <div
               className={
                 classes.request +
-                (request.name === loadedRequestName ? " " + classes.currentlyLoaded : "")
+                (requestName === loadedRequestName ? " " + classes.currentlyLoaded : "")
               }
-              key={request.name}
-              onClick={() => this.setCurrentRequest(request)}
+              key={requestName}
+              onClick={() => this.loadRequest(requestName)}
             >
-              <div>{request.name}</div>
+              <div>{requestName}</div>
               <div className={classes.buttons}>
-                <button onClick={() => this.executeRequest(request)}>Execute</button>
-                <button onClick={() => this.deleteRequest(request.name)}>Delete</button>
-                <button onClick={() => this.renameRequest(request)}>Rename</button>
+                <button onClick={() => this.loadAndExecuteRequest(requestName)}>Execute</button>
+                <button onClick={() => this.deleteRequest(requestName)}>Delete</button>
+                <button onClick={() => this.renameRequest(requestName)}>Rename</button>
               </div>
             </div>
           ))}
@@ -148,7 +187,6 @@ class Library extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    savedRequests: state.savedRequests,
     currentRequest: state.currentRequest,
     directory: state.directory
   };

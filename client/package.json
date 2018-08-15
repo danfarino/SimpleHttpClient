@@ -6,6 +6,7 @@
     "axios": "^0.18.0",
     "dexie": "^2.0.4",
     "electron": "^2.0.7",
+    "eventbusjs": "^0.2.0",
     "immer": "^1.5.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
@@ -17,6 +18,7 @@
     "smalltalk": "^3.1.1"
   },
   "devDependencies": {
+    "electron-devtools-installer": "^2.2.4",
     "electron-packager": "^12.1.0"
   },
   "scripts": {

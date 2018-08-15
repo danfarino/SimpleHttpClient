@@ -3,6 +3,8 @@ const electron = require("electron");
 
 let windowCount = 0;
 
+const DEV_MODE = process.env.DEV_MODE === "1";
+
 function createWindow() {
   ++windowCount;
 
@@ -23,8 +25,12 @@ function createWindow() {
     }
   });
 
-  if (process.env.DEV_MODE === "1") {
+  if (DEV_MODE) {
     win.loadURL("http://localhost:3000/");
+
+    const devToolsInstaller = require("electron-devtools-installer");
+    devToolsInstaller.default(devToolsInstaller.REACT_DEVELOPER_TOOLS);
+    devToolsInstaller.default(devToolsInstaller.REDUX_DEVTOOLS);
   } else {
     win.loadFile("index.html");
   }

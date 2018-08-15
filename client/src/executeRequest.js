@@ -5,7 +5,6 @@ let currentRequestInfo = null;
 
 export function cancelRequest() {
   if (currentRequestInfo) {
-    console.log(`clearInterval ${currentRequestInfo.interval}`);
     clearInterval(currentRequestInfo.interval);
     currentRequestInfo = null;
   }
