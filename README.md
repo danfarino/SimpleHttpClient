@@ -12,16 +12,16 @@ Goal: to make a simple HTTP client that doesn't obscure the HTTP protocol's simp
 
 ## Running in development mode
 
-From one Bash prompt:
+First, from a Bash prompt, start the create-react-app dev server:
+```
+./client-dev-mode.sh
+```
+
+Then, from another Bash prompt:
 ```
 ./electron-dev-mode.sh
 ```
 
-In another terminal:
-```
-cd client
-npm start
-```
 
 ## Development notes
 
