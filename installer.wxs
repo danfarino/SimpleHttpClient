@@ -5,7 +5,7 @@
 
             Name="Simple HTTP Client" Version="$(var.ProductVersion)" Manufacturer="Dan Farino" Language="1033">
       <Package InstallerVersion="200" Compressed="yes" Description="Simple HTTP Client version $(var.ProductVersion)"/>
-      <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
+      <Media Id="1" Cabinet="product.cab" EmbedCab="yes" CompressionLevel="high" />
       <!-- <Icon Id="ProductIcon" SourceFile="example.ico"/> -->
       <!-- <Property Id="ARPPRODUCTICON" Value="ProductIcon"/> -->
       <!-- <Property Id="ARPHELPLINK" Value="http://www.exampleproduct.com"/> -->
