@@ -45,17 +45,18 @@ const styles = theme => ({
   directory: {
     display: "flex",
     padding: "0.6em",
-    "& > div": {
+    "& > input": {
       fontSize: "0.7em",
       flex: 1,
       border: "1px solid #ccc",
       padding: "0.3em",
       marginLeft: "0.2em",
-      color: "#999"
+      color: "#999",
+
+      "&:focus": {
+        outline: 0
+      }
     }
-  },
-  noDirectory: {
-    color: theme.placeholderColor
   }
 });
 
@@ -119,11 +120,7 @@ class Library extends React.Component {
         </header>
         <div className={classes.directory}>
           <button onClick={this.chooseDirectory}>Choose</button>
-          {directory ? (
-            <div>{directory}</div>
-          ) : (
-            <div className={classes.noDirectory}>no directory selected</div>
-          )}
+          <input type="text" readOnly={true} value={directory || "no directory selected"} />
         </div>
         <main>
           {savedRequests.map(request => (
