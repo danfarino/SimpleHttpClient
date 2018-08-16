@@ -3,7 +3,9 @@ import injectStyles from "react-jss";
 import { connect } from "react-redux";
 
 const styles = theme => ({
-  root: {},
+  root: {
+    backgroundColor: theme.appBackgroundColor
+  },
   arrow: {
     display: "flex",
     justifyContent: "space-around",
