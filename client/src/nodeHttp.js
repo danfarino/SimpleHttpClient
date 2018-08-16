@@ -44,7 +44,8 @@ export default function httpRequest(requestInfo) {
 
       const responseInfo = {
         body: "",
-        rawRequest: ""
+        rawRequest: "",
+        parseErrorAfterBytes: null
       };
 
       const parsedUrl = URL.parse(url);
@@ -83,6 +84,19 @@ export default function httpRequest(requestInfo) {
       );
 
       clientRequest.prependOnceListener("socket", function(socket) {
+        socket.on("connect", err => {
+          if (!err) {
+            // note: get the responseInfo.socket information HERE instead of on the "socket" event
+            // since at the socket information is not yet filled in when that "socket" event is raised.
+            responseInfo.socket = {
+              localAddress: socket.localAddress,
+              localPort: socket.localPort,
+              remoteAddress: socket.remoteAddress,
+              remotePort: socket.remotePort
+            };
+          }
+        });
+
         const previousWriteFunction = socket.write;
         socket.write = function(data, encoding, callback) {
           responseInfo.rawRequest += data || "";
@@ -91,22 +105,20 @@ export default function httpRequest(requestInfo) {
 
         const previousEndFunction = socket.end;
         socket.end = function(data, encoding) {
-          // note: get the responseInfo.socket information HERE instead of on the "socket" event
-          // since at the socket information is not yet filled in when that "socket" event is raised.
-          responseInfo.socket = {
-            localAddress: socket.localAddress,
-            localPort: socket.localPort,
-            remoteAddress: socket.remoteAddress,
-            remotePort: socket.remotePort
-          };
-
           responseInfo.rawRequest += data || "";
           previousEndFunction.call(socket, data, encoding);
         };
       });
 
       clientRequest.on("error", e => {
-        reject(e);
+        if (e.code === "HPE_INVALID_CONSTANT" && typeof e.bytesParsed === "number") {
+          // This is "Parse Error" https://github.com/nodejs/node/issues/15582
+          // where Content-Length is a lie
+          responseInfo.parseErrorAfterBytes = e.bytesParsed;
+          resolve(responseInfo);
+        } else {
+          reject(e);
+        }
       });
 
       if (body) {

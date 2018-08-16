@@ -41,6 +41,12 @@ const styles = theme => ({
       extend: "fixed"
     }
   },
+  parseError: {
+    color: "red",
+    marginTop: "0.8em",
+    marginBottom: "1.1em",
+    paddingLeft: "0.4em"
+  },
   prettyJsonLabel: {
     fontSize: "0.8em",
     display: "flex",
@@ -87,7 +93,8 @@ class Response extends React.Component {
       headers,
       body,
       socket,
-      rawRequest
+      rawRequest,
+      parseErrorAfterBytes
     } = currentResponse;
 
     const arrow = <div className={classes.arrow}>🠣</div>;
@@ -127,6 +134,15 @@ class Response extends React.Component {
         </section>
 
         {arrow}
+
+        {parseErrorAfterBytes && (
+          <div className={classes.parseError}>
+            ERROR: invalid HTTP response received from server after reading {parseErrorAfterBytes}{" "}
+            bytes.
+            <br />
+            Ensure the body length matches the Content-Type response header.
+          </div>
+        )}
 
         <section className={`card ${classes.response}`}>
           <header>
