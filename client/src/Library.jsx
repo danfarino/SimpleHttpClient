@@ -173,9 +173,30 @@ class Library extends React.Component {
             >
               <div>{requestName}</div>
               <div className={classes.buttons}>
-                <button onClick={() => this.loadAndExecuteRequest(requestName)}>Execute</button>
-                <button onClick={() => this.deleteRequest(requestName)}>Delete</button>
-                <button onClick={() => this.renameRequest(requestName)}>Rename</button>
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.loadAndExecuteRequest(requestName);
+                  }}
+                >
+                  Execute
+                </button>
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.deleteRequest(requestName);
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.renameRequest(requestName);
+                  }}
+                >
+                  Rename
+                </button>
               </div>
             </div>
           ))}
