@@ -49,7 +49,7 @@ const styles = theme => ({
   currentlyLoaded: {
     backgroundColor: theme.currentlyLoadedBackgroundColor
   },
-  directory: {
+  directoryChooser: {
     display: "flex",
     padding: "0.6em",
     "& > input": {
@@ -58,6 +58,7 @@ const styles = theme => ({
       border: "1px solid #ccc",
       padding: "0.3em",
       marginLeft: "0.2em",
+      marginRight: "0.2em",
       color: "#999",
 
       "&:focus": {
@@ -89,6 +90,9 @@ class Library extends React.Component {
   }
 
   refreshDirectory = async () => {
+    // do this so that the user sees some sort of feedback
+    this.setState({ requestNames: [] });
+
     const { directory } = this.props;
     if (directory) {
       const requestNames = await getRequestsInDirectory();
@@ -147,8 +151,9 @@ class Library extends React.Component {
   };
 
   render() {
-    const { classes, currentRequest, directory } = this.props;
+    const { classes, currentRequest, directory, inProgress } = this.props;
     const { requestNames } = this.state;
+    const disableAllControls = inProgress !== false;
     const loadedRequestName = currentRequest ? currentRequest.name : null;
 
     return (
@@ -156,10 +161,14 @@ class Library extends React.Component {
         <header>
           <div>Saved requests</div>
         </header>
-        <div className={classes.directory}>
-          <button onClick={this.chooseDirectory}>Choose</button>
+        <div className={classes.directoryChooser}>
+          <button disabled={disableAllControls} onClick={this.chooseDirectory}>
+            Choose
+          </button>
           <input type="text" readOnly={true} value={directory || "no directory selected"} />
-          <button onClick={this.refreshDirectory}>↻</button>
+          <button disabled={disableAllControls} onClick={this.refreshDirectory}>
+            ↻
+          </button>
         </div>
         <main>
           {requestNames.map(requestName => (
@@ -169,11 +178,12 @@ class Library extends React.Component {
                 (requestName === loadedRequestName ? " " + classes.currentlyLoaded : "")
               }
               key={requestName}
-              onClick={() => this.loadRequest(requestName)}
+              onClick={() => !disableAllControls && this.loadRequest(requestName)}
             >
               <div>{requestName}</div>
               <div className={classes.buttons}>
                 <button
+                  disabled={disableAllControls}
                   onClick={e => {
                     e.stopPropagation();
                     this.loadAndExecuteRequest(requestName);
@@ -182,6 +192,7 @@ class Library extends React.Component {
                   Execute
                 </button>
                 <button
+                  disabled={disableAllControls}
                   onClick={e => {
                     e.stopPropagation();
                     this.deleteRequest(requestName);
@@ -190,6 +201,7 @@ class Library extends React.Component {
                   Delete
                 </button>
                 <button
+                  disabled={disableAllControls}
                   onClick={e => {
                     e.stopPropagation();
                     this.renameRequest(requestName);
@@ -209,7 +221,8 @@ class Library extends React.Component {
 function mapStateToProps(state) {
   return {
     currentRequest: state.currentRequest,
-    directory: state.directory
+    directory: state.directory,
+    inProgress: state.inProgress
   };
 }
 

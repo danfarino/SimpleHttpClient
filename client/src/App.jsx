@@ -30,6 +30,11 @@ const styles = theme => ({
     "input, select": {
       fontSize: "inherit"
     },
+    "input, select, textarea": {
+      "&:disabled": {
+        backgroundColor: "white"
+      }
+    },
     button: {
       padding: "0.2em 0.6em"
     },

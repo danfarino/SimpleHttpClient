@@ -7,6 +7,9 @@ export function cancelRequest() {
   if (currentRequestInfo) {
     clearInterval(currentRequestInfo.interval);
     currentRequestInfo = null;
+    store.dispatch(draft => {
+      draft.inProgress = false;
+    });
   }
 }
 

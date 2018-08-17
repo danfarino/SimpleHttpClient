@@ -2,7 +2,7 @@ import React from "react";
 import injectStyles from "react-jss";
 import { connect } from "react-redux";
 import produce from "immer";
-import { executeRequest } from "./executeRequest";
+import { executeRequest, cancelRequest } from "./executeRequest";
 
 const styles = theme => ({
   root: {
@@ -26,6 +26,9 @@ const styles = theme => ({
         zIndex: 1000
       }
     }
+  },
+  executeCancelButton: {
+    width: "6em"
   }
 });
 
@@ -53,13 +56,28 @@ class UrlEditor extends React.Component {
   };
 
   render() {
-    const { classes, currentRequest } = this.props;
+    const { classes, currentRequest, inProgress } = this.props;
     const { method, url } = currentRequest;
+
+    const disableAllControls = inProgress !== false;
+    const disableExecute = disableAllControls || !/^https?:\/\/.+/.test(url);
 
     return (
       <div className={classes.root}>
-        <button onClick={executeRequest}>Execute</button>
-        <select value={method} onChange={this.setMethod}>
+        {disableAllControls ? (
+          <button className={classes.executeCancelButton} onClick={cancelRequest}>
+            Cancel
+          </button>
+        ) : (
+          <button
+            className={classes.executeCancelButton}
+            disabled={disableExecute}
+            onClick={executeRequest}
+          >
+            Execute
+          </button>
+        )}
+        <select value={method} disabled={disableAllControls} onChange={this.setMethod}>
           {HTTP_METHODS.map(method => (
             <option key={method} value={method}>
               {method}
@@ -70,6 +88,7 @@ class UrlEditor extends React.Component {
           className={classes.url}
           type="text"
           spellCheck={false}
+          disabled={disableAllControls}
           placeholder="URL"
           value={url}
           onChange={this.setUrl}
@@ -83,7 +102,8 @@ class UrlEditor extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    currentRequest: state.currentRequest
+    currentRequest: state.currentRequest,
+    inProgress: state.inProgress
   };
 }
 

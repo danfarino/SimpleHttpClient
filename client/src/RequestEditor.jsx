@@ -24,16 +24,12 @@ const styles = theme => ({
       }
     }
   },
-  requestLine: {
+  buttons: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "0.6em",
-    "& > div": {
-      display: "flex",
-      flexWrap: "wrap"
-    },
-    "& button": {
+    "& > div:first-child() button": {
       marginRight: "0.2em"
     }
   },
@@ -163,8 +159,9 @@ class RequestEditor extends React.Component {
   };
 
   render() {
-    const { classes, currentRequest } = this.props;
+    const { classes, currentRequest, inProgress } = this.props;
     const { method, headers, body } = currentRequest;
+    const disableAllControls = inProgress !== false;
 
     const hasRequestBody = method === "POST" || method === "PUT";
 
@@ -173,11 +170,19 @@ class RequestEditor extends React.Component {
         <header>Request editor</header>
         <main>
           <section>
-            <div className={classes.requestLine}>
+            <div className={classes.buttons}>
               <div>
-                <button onClick={this.addHeader}>Add Header</button>
-                <button onClick={this.clearResponse}>Clear Response</button>
-                <button onClick={this.save}>Save</button>
+                <button disabled={disableAllControls} onClick={this.addHeader}>
+                  Add Header
+                </button>
+                <button disabled={disableAllControls} onClick={this.clearResponse}>
+                  Clear Response
+                </button>
+              </div>
+              <div>
+                <button disabled={disableAllControls} onClick={this.save}>
+                  Save Request
+                </button>
               </div>
             </div>
           </section>
@@ -187,6 +192,7 @@ class RequestEditor extends React.Component {
                 <input
                   type="text"
                   placeholder="name"
+                  disabled={disableAllControls}
                   spellCheck={false}
                   value={header.name}
                   onChange={e => this.setHeaderName(i, e.target.value)}
@@ -194,11 +200,14 @@ class RequestEditor extends React.Component {
                 <input
                   type="text"
                   placeholder="value"
+                  disabled={disableAllControls}
                   spellCheck={false}
                   value={header.value}
                   onChange={e => this.setHeaderValue(i, e.target.value)}
                 />
-                <button onClick={() => this.removeHeader(i)}>Remove</button>
+                <button disabled={disableAllControls} onClick={() => this.removeHeader(i)}>
+                  Remove
+                </button>
               </React.Fragment>
             ))}
           </section>
@@ -206,7 +215,12 @@ class RequestEditor extends React.Component {
             <section className={classes.body}>
               <label>
                 <div>Body:</div>
-                <textarea spellCheck={false} value={body} onChange={this.setBody} />
+                <textarea
+                  disabled={disableAllControls}
+                  spellCheck={false}
+                  value={body}
+                  onChange={this.setBody}
+                />
               </label>
             </section>
           )}
@@ -219,7 +233,8 @@ class RequestEditor extends React.Component {
 function mapStateToProps(state) {
   return {
     currentRequest: state.currentRequest,
-    directory: state.directory
+    directory: state.directory,
+    inProgress: state.inProgress
   };
 }
 
