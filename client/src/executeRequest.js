@@ -1,11 +1,13 @@
 import store from "./store";
 import nodeHttp from "./nodeHttp";
+import createCancelToken from "./cancelToken";
 
 let currentRequestInfo = null;
 
 export function cancelRequest() {
   if (currentRequestInfo) {
     clearInterval(currentRequestInfo.interval);
+    currentRequestInfo.cancelToken.cancel();
     currentRequestInfo = null;
     store.dispatch(draft => {
       draft.inProgress = false;
@@ -16,7 +18,9 @@ export function cancelRequest() {
 export async function executeRequest() {
   cancelRequest();
 
-  let thisRequestInfo = {};
+  let thisRequestInfo = {
+    cancelToken: createCancelToken()
+  };
 
   currentRequestInfo = thisRequestInfo;
 
@@ -46,7 +50,7 @@ export async function executeRequest() {
   let response = null;
 
   try {
-    response = await nodeHttp(request);
+    response = await nodeHttp(request, currentRequestInfo.cancelToken);
   } catch (e) {
     error = String(e.message || e);
   }

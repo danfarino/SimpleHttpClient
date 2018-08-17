@@ -35,7 +35,7 @@ function getHeadersObj(headers, body) {
   return result;
 }
 
-export default function httpRequest(requestInfo) {
+export default function httpRequest(requestInfo, cancelToken) {
   return new Promise((resolve, reject) => {
     try {
       const { url, method, headers, body } = requestInfo;
@@ -83,6 +83,11 @@ export default function httpRequest(requestInfo) {
         }
       );
 
+      cancelToken.subscribe(() => {
+        console.log("cancelling node request");
+        clientRequest.abort();
+      });
+
       clientRequest.prependOnceListener("socket", function(socket) {
         socket.on("connect", err => {
           if (!err) {
@@ -124,10 +129,6 @@ export default function httpRequest(requestInfo) {
       if (body) {
         clientRequest.write(body);
       }
-
-      // req.on("aborted", () => {
-      //   clientRequest.abort();
-      // });
 
       clientRequest.end();
     } catch (e) {
