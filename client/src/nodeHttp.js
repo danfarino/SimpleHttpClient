@@ -4,6 +4,10 @@ const URL = window.require("url");
 
 // headers is [ { name: "...", value: "..." }, ...]
 function getHeadersObj(headers, body) {
+  // 1.
+  // Merge individual request headers into arrays of values.
+  // We'll key off of the lower-case header name in case we have
+  // multiple of the same header but with different casings.
   const lowerCaseLookup = {};
 
   for (const header of headers) {
@@ -11,7 +15,7 @@ function getHeadersObj(headers, body) {
     let thisHeader = lowerCaseLookup[headerNameLowerCase];
     if (!thisHeader) {
       thisHeader = lowerCaseLookup[headerNameLowerCase] = {
-        name: header.name,
+        name: header.name, // stores the header name with original casing
         values: []
       };
     }
@@ -19,6 +23,9 @@ function getHeadersObj(headers, body) {
     thisHeader.values.push(header.value);
   }
 
+  // 2.
+  // Make sure we have a Content-Length header. If not,
+  // calculate the length of the body in bytes and use that.
   if (body && !lowerCaseLookup["content-length"]) {
     lowerCaseLookup["content-length"] = {
       name: "Content-Length",
@@ -26,6 +33,8 @@ function getHeadersObj(headers, body) {
     };
   }
 
+  // 3.
+  // Return an object with the original header names (not lower cased)
   const result = {};
   for (const name of Object.keys(lowerCaseLookup)) {
     const thisHeader = lowerCaseLookup[name];
