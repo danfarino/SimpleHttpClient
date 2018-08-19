@@ -3,6 +3,8 @@ while ($true) {
   if ($clientPid) {
     break
   }
+
+  Start-Sleep 1
 }
 
 echo "Client PID is $clientPid"
